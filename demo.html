@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Demo QR codes - Smart Cooking Oil Collection Box</title>
+  <link rel="icon" href="assets/img/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    body { background: var(--bg); }
+    .demo { max-width: 960px; margin: 0 auto; padding: 20px 16px 40px; }
+    .demo-head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+    .demo-head img { width: 40px; height: 40px; }
+    .demo-head h1 { font-size: 1.3rem; }
+    .toolbar { display: flex; flex-direction: column; gap: 12px; margin: 16px 0 20px; }
+    .toolbar-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+    .toolbar input[type="url"] {
+      flex: 1 1 280px; min-height: 44px; padding: 0 12px;
+      border: 2px solid var(--line); border-radius: 12px; font: inherit;
+    }
+    .toolbar .btn { width: auto; min-height: 44px; font-size: 0.95rem; }
+    .check { display: flex; align-items: center; gap: 8px; font-weight: 400; }
+    .check input { width: 20px; height: 20px; }
+    .status { min-height: 1.5em; color: var(--green-dark); font-weight: 600; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+    .qr-card { align-items: center; text-align: center; break-inside: avoid; }
+    .qr-card svg { width: 100%; max-width: 220px; height: auto; }
+    .qr-label { width: 100%; padding: 10px; border: 2px dashed #9a9a92; border-radius: 12px; }
+    .qr-label strong { display: block; font-size: 1.05rem; }
+    .qr-label span { color: var(--muted); font-size: 0.85rem; }
+    .qr-url { width: 100%; max-height: 4.5em; overflow: auto; font-size: 0.7rem; word-break: break-all; color: var(--muted); }
+    .qr-card a { color: var(--green); font-weight: 600; }
+
+    @media print {
+      body { background: #fff; }
+      .toolbar, .demo-head p, .qr-url, .qr-card a, .no-print { display: none !important; }
+      .demo { max-width: none; padding: 0; }
+      .grid { grid-template-columns: repeat(2, 1fr); gap: 12mm; }
+      .qr-card { padding: 6mm; border: 1px solid #999; box-shadow: none; }
+      .qr-card svg { max-width: 60mm; }
+    }
+  </style>
+</head>
+<body>
+  <main class="demo">
+    <div class="demo-head no-print">
+      <img src="assets/img/logo.svg" alt="">
+      <h1>Demo QR codes</h1>
+    </div>
+    <p class="lead">Scan these with a phone, or open them in a mobile viewport. Each QR code is built from this site&rsquo;s address.</p>
+
+    <section class="toolbar" aria-label="Controls">
+      <div class="toolbar-row">
+        <label for="base" class="sr-only">Site address</label>
+        <input id="base" type="url" autocomplete="off" spellcheck="false">
+      </div>
+      <label class="check"><input type="checkbox" id="use-ts" checked> Include <code>ts</code> (valid deposits expire after 15 minutes)</label>
+      <div class="toolbar-row">
+        <button type="button" class="btn btn-primary" id="regen">Regenerate</button>
+        <button type="button" class="btn btn-secondary" id="print">Print labels</button>
+        <button type="button" class="btn btn-secondary" id="reset">Reset demo data</button>
+      </div>
+      <p class="status" id="status" role="status"></p>
+    </section>
+
+    <section class="grid" id="grid" aria-label="Scenarios"></section>
+  </main>
+
+  <script src="assets/js/qrcode.min.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      var ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
+      var SCENARIOS = [
+        { title: 'Valid deposit, 0.5 L', note: 'Box SCB-SI-03, +50 points, green chip',
+          params: { box: 'SCB-SI-03', ml: 500, pur: 'ok', fill: 38 } },
+        { title: 'Valid deposit, 1.25 L', note: 'Box SCB-SI-03, +125 points, yellow chip',
+          params: { box: 'SCB-SI-03', ml: 1250, pur: 'ok', fill: 62 } },
+        { title: 'Box nearly full', note: 'Box SCB-BU-01, +80 points, red chip (fill 95)',
+          params: { box: 'SCB-BU-01', ml: 800, pur: 'ok', fill: 95 } },
+        { title: 'Rejected, water detected', note: 'Box SCB-TR-02, no points',
+          params: { box: 'SCB-TR-02', ml: 700, pur: 'water', fill: 55 } },
+        { title: 'Expired link', note: 'Created 20 minutes ago',
+          params: { box: 'SCB-SI-03', ml: 1000, pur: 'ok', fill: 40 }, expired: true },
+        { title: 'Info page', note: 'No parameters', params: null }
+      ];
+
+      var baseInput = document.getElementById('base');
+      var useTs = document.getElementById('use-ts');
+      var grid = document.getElementById('grid');
+      var status = document.getElementById('status');
+
+      baseInput.value = location.href.split(/[?#]/)[0].replace(/[^\/]*$/, '');
+
+      function randomToken() {
+        var bytes = new Uint8Array(6);
+        crypto.getRandomValues(bytes);
+        var out = '';
+        for (var i = 0; i < bytes.length; i++) out += ALPHABET.charAt(bytes[i] % ALPHABET.length);
+        return out;
+      }
+
+      function buildUrl(scenario) {
+        var base = baseInput.value.trim();
+        if (!scenario.params) return base;
+        var p = scenario.params;
+        var now = Math.floor(Date.now() / 1000);
+        var parts = [
+          ['box', p.box], ['ml', p.ml], ['pur', p.pur], ['fill', p.fill], ['tk', randomToken()]
+        ];
+        if (scenario.expired) parts.push(['ts', now - 20 * 60]);
+        else if (useTs.checked) parts.push(['ts', now]);
+        return base + '?' + parts.map(function (kv) { return kv[0] + '=' + encodeURIComponent(kv[1]); }).join('&');
+      }
+
+      function qrSvg(text) {
+        var qr = qrcode(0, 'M');
+        qr.addData(text);
+        qr.make();
+        var n = qr.getModuleCount();
+        var quiet = 4;
+        var size = n + quiet * 2;
+        var d = '';
+        for (var r = 0; r < n; r++) {
+          for (var c = 0; c < n; c++) {
+            if (qr.isDark(r, c)) d += 'M' + (c + quiet) + ' ' + (r + quiet) + 'h1v1h-1z';
+          }
+        }
+        return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + size + ' ' + size +
+          '" shape-rendering="crispEdges" role="img" aria-label="QR code">' +
+          '<rect width="' + size + '" height="' + size + '" fill="#fff"/><path d="' + d + '" fill="#000"/></svg>';
+      }
+
+      function el(tag, className, text) {
+        var node = document.createElement(tag);
+        if (className) node.className = className;
+        if (text !== undefined) node.textContent = text;
+        return node;
+      }
+
+      function render() {
+        grid.textContent = '';
+        SCENARIOS.forEach(function (scenario, i) {
+          var url = buildUrl(scenario);
+          var card = el('article', 'card qr-card');
+
+          var wrap = el('div');
+          wrap.innerHTML = qrSvg(url);
+          card.appendChild(wrap.firstChild);
+
+          var label = el('div', 'qr-label');
+          label.appendChild(el('strong', '', (i + 1) + '. ' + scenario.title));
+          label.appendChild(el('span', '', scenario.note));
+          card.appendChild(label);
+
+          card.appendChild(el('code', 'qr-url', url));
+          var open = el('a', '', 'Open this link');
+          open.href = url;
+          open.target = '_blank';
+          open.rel = 'noopener';
+          card.appendChild(open);
+
+          grid.appendChild(card);
+        });
+      }
+
+      document.getElementById('regen').addEventListener('click', function () {
+        render();
+        status.textContent = 'New tokens and timestamps generated.';
+      });
+      useTs.addEventListener('change', render);
+      baseInput.addEventListener('change', render);
+      document.getElementById('print').addEventListener('click', function () { window.print(); });
+
+      document.getElementById('reset').addEventListener('click', function () {
+        if (!confirm('Clear all saved demo data (language, balances and claimed tokens)?')) return;
+        // Only this prototype's keys, because GitHub Pages shares localStorage across all of a user's project sites.
+        var keys = [];
+        for (var i = 0; i < localStorage.length; i++) {
+          var k = localStorage.key(i);
+          if (k && k.indexOf('scocb.') === 0) keys.push(k);
+        }
+        keys.forEach(function (k) { localStorage.removeItem(k); });
+        status.textContent = 'Demo data cleared.';
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>

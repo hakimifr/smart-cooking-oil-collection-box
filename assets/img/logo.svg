@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Smart Cooking Oil Collection Box">
+  <path d="M32 4C32 4 11 27 11 41a21 21 0 0 0 42 0C53 27 32 4 32 4Z" fill="#E0A100"/>
+  <path d="M32 4C32 4 21 16 15.5 28 20 20 32 10 32 10Z" fill="#F7CB4D" opacity=".7"/>
+  <path d="M23 47c0-10 7-17 19-18 0 11-6 19-17 19-1 0-2 0-2-1Z" fill="#14532D"/>
+  <path d="M24.5 46.5 38 33" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+</svg>

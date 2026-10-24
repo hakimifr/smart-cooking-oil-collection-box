@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#E0A100">
+  <title data-i18n="brand">Smart Cooking Oil Collection Box</title>
+  <link rel="icon" href="assets/img/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="header">
+      <a class="brand" href="./">
+        <img class="brand-logo" src="assets/img/logo.svg" alt="" width="36" height="36">
+        <span class="brand-name" data-i18n="brand">Smart Cooking Oil Collection Box</span>
+      </a>
+      <div class="lang" role="group" data-i18n-attr="aria-label:lang.label" aria-label="Language">
+        <button type="button" data-lang="en" aria-pressed="true">EN</button>
+        <button type="button" data-lang="ms" aria-pressed="false">BM</button>
+      </div>
+    </header>
+
+    <main id="main" class="main" tabindex="-1">
+
+      <section id="view-verify" class="view center" role="status">
+        <div class="spinner" aria-hidden="true"></div>
+        <p class="muted" data-i18n="verify.text">Verifying your deposit&hellip;</p>
+      </section>
+
+      <section id="view-info" class="view" hidden>
+        <h1 tabindex="-1" data-i18n="info.title">Recycle your used cooking oil</h1>
+        <p class="lead" data-i18n="info.lead"></p>
+
+        <div class="card">
+          <h2 data-i18n="info.how">How it works</h2>
+          <ol class="steps">
+            <li>
+              <span class="step-num" aria-hidden="true">1</span>
+              <div><strong data-i18n="info.s1.t"></strong><span class="desc" data-i18n="info.s1.d"></span></div>
+            </li>
+            <li>
+              <span class="step-num" aria-hidden="true">2</span>
+              <div><strong data-i18n="info.s2.t"></strong><span class="desc" data-i18n="info.s2.d"></span></div>
+            </li>
+            <li>
+              <span class="step-num" aria-hidden="true">3</span>
+              <div><strong data-i18n="info.s3.t"></strong><span class="desc" data-i18n="info.s3.d"></span></div>
+            </li>
+            <li>
+              <span class="step-num" aria-hidden="true">4</span>
+              <div><strong data-i18n="info.s4.t"></strong><span class="desc" data-i18n="info.s4.d"></span></div>
+            </li>
+          </ol>
+        </div>
+
+        <div class="card card-accent">
+          <h2 data-i18n="info.rewards">Rewards</h2>
+          <ul class="reward-list">
+            <li data-i18n="info.r1"></li>
+            <li data-i18n="info.r2"></li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h2 data-i18n="info.why.t">Why it matters</h2>
+          <p class="muted" data-i18n="info.why.d"></p>
+        </div>
+      </section>
+
+      <section id="view-summary" class="view" hidden>
+        <h1 tabindex="-1" data-i18n="summary.title">Your deposit</h1>
+
+        <div class="card hero">
+          <p class="hero-num" id="sum-points"></p>
+          <p class="muted" id="sum-points-sub"></p>
+        </div>
+
+        <div class="card">
+          <dl class="rows">
+            <div class="row">
+              <dt data-i18n="summary.box">Box</dt>
+              <dd><span id="sum-area"></span><small id="sum-id"></small></dd>
+            </div>
+            <div class="row">
+              <dt data-i18n="summary.location">Location</dt>
+              <dd id="sum-spot"></dd>
+            </div>
+            <div class="row">
+              <dt data-i18n="summary.time">Deposited</dt>
+              <dd id="sum-time"></dd>
+            </div>
+            <div class="row">
+              <dt data-i18n="summary.volume">Volume</dt>
+              <dd id="sum-volume"></dd>
+            </div>
+            <div class="row">
+              <dt data-i18n="summary.purity">Purity</dt>
+              <dd>
+                <span class="ok">
+                  <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#1f7a4d"/><path d="M5.5 10.3l3 3 6-6.3" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <span data-i18n="summary.purity.ok">Purity check passed</span>
+                </span>
+              </dd>
+            </div>
+            <div class="row">
+              <dt data-i18n="summary.fill">Box fill</dt>
+              <dd><span class="chip" id="sum-fill"></span></dd>
+            </div>
+          </dl>
+          <p class="note" id="sum-fill-note" data-i18n="summary.fill.high" hidden></p>
+        </div>
+
+        <form id="claim-form" class="card" novalidate>
+          <label for="phone" data-i18n="claim.phone.label">Malaysian mobile number (+60)</label>
+          <div class="phone" id="phone-wrap">
+            <span class="phone-prefix" aria-hidden="true">+60</span>
+            <input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel-national" maxlength="20" aria-describedby="phone-hint phone-error" data-i18n-attr="placeholder:claim.phone.placeholder" placeholder="12-345 6789">
+          </div>
+          <p class="hint" id="phone-hint" data-i18n="claim.phone.hint"></p>
+          <p class="error" id="phone-error" role="alert" hidden></p>
+          <button type="submit" class="btn btn-primary" data-i18n="claim.button">Claim points</button>
+        </form>
+      </section>
+
+      <section id="view-otp" class="view" hidden>
+        <h1 tabindex="-1" data-i18n="otp.title">Enter your code</h1>
+        <p class="lead" id="otp-sent"></p>
+
+        <form id="otp-form" class="card" novalidate>
+          <fieldset class="otp" id="otp-group">
+            <legend class="sr-only" data-i18n="otp.legend">6-digit verification code</legend>
+            <input class="otp-input" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code">
+            <input class="otp-input" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+            <input class="otp-input" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+            <input class="otp-input" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+            <input class="otp-input" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+            <input class="otp-input" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+          </fieldset>
+          <p class="error" id="otp-error" role="alert" hidden></p>
+          <p class="hint" data-i18n="otp.demo"></p>
+          <button type="submit" class="btn btn-primary" data-i18n="otp.confirm">Confirm</button>
+          <div class="actions">
+            <button type="button" class="btn-link" id="otp-resend"></button>
+            <button type="button" class="btn-link" id="otp-change" data-i18n="otp.change">Change number</button>
+          </div>
+        </form>
+      </section>
+
+      <section id="view-success" class="view" hidden>
+        <div class="success-check" aria-hidden="true">
+          <svg viewBox="0 0 52 52"><circle class="check-circle" cx="26" cy="26" r="24"/><path class="check-mark" d="M15 27l8 8 15-17"/></svg>
+        </div>
+        <h1 class="center-text" tabindex="-1" data-i18n="success.title">Points claimed</h1>
+
+        <div class="card hero">
+          <p class="muted" data-i18n="success.added">Points added</p>
+          <p class="hero-num" id="suc-added"></p>
+          <p class="muted" id="suc-balance-label"></p>
+          <p class="balance" id="suc-balance"></p>
+        </div>
+
+        <div class="card">
+          <p class="voucher-line" id="suc-voucher"></p>
+          <div class="progress" id="suc-progress" role="progressbar" aria-valuemin="0" aria-valuemax="1000" data-i18n-attr="aria-label:success.progress.label">
+            <div class="progress-bar" id="suc-progress-bar" style="width:0%"></div>
+          </div>
+          <p class="hint" id="suc-left"></p>
+        </div>
+
+        <div class="card">
+          <h2 data-i18n="success.shops.title">Use your voucher at partner shops</h2>
+          <ul class="shops" id="suc-shops"></ul>
+          <p class="hint" data-i18n="success.shops.note"></p>
+        </div>
+
+        <aside class="card fact">
+          <h2 data-i18n="success.fact.title">Did you know?</h2>
+          <p id="suc-fact"></p>
+        </aside>
+
+        <button type="button" class="btn btn-primary" id="done-btn" data-i18n="success.done">Done</button>
+      </section>
+
+      <section id="view-status" class="view center-text" hidden>
+        <div class="status-icon" id="status-icon" aria-hidden="true"></div>
+        <h1 id="status-title" tabindex="-1"></h1>
+        <p class="lead" id="status-body"></p>
+        <ul class="card tips" id="status-tips" hidden></ul>
+        <a class="btn btn-secondary" href="./" data-i18n="status.home">See how it works</a>
+      </section>
+
+    </main>
+
+    <footer class="footer" data-i18n="footer">&copy; 2026 Smart Cooking Oil Collection Box &middot; Student prototype</footer>
+  </div>
+
+  <div class="toast" id="sms-toast" role="status" aria-live="polite">
+    <p id="sms-text"></p>
+    <button type="button" id="sms-close" data-i18n-attr="aria-label:sms.close" aria-label="Dismiss notification">&times;</button>
+  </div>
+
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/i18n.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
